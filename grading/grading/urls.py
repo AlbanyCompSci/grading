@@ -12,5 +12,6 @@ urlpatterns = patterns('',
     url(r'^accounts/', include('allauth.urls')),
 
     url(r'^$', 'usermanage.views.login'),
-    url(r'^lessons/', 'lessons.views.view_lessons'),
+    url(r'^lessons/', 'lessons.views.lessons_overview'),
+    url(r'^lesson/(?P<id>[0-9]+)/$', 'lessons.views.lesson'),
 )
