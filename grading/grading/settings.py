@@ -27,6 +27,10 @@ TEMPLATE_DIRS = (
 )
 TEMPLATE_DEBUG = True
 
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, 'static'),
+)
+
 ALLOWED_HOSTS = []
 
 SITE_ID = 1
@@ -91,6 +95,13 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+# django-allauth config
+
+AUTHENTICATION_BACKENDS = (
+    "django.contrib.auth.backends.ModelBackend",
+    "allauth.account.auth_backends.AuthenticationBackend",
+)
+
 TEMPLATE_CONTEXT_PROCESSORS = (
     'django.contrib.auth.context_processors.auth',
     # allauth requirements:
@@ -106,4 +117,5 @@ SOCIALACCOUNT_PROVIDERS = {
     }
 }
 
-LOGIN_REDIRECT_URL = '/'
+LOGIN_URL = '/'
+LOGIN_REDIRECT_URL = '/lessons/'

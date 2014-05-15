@@ -1,4 +1,8 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+
 
 def login(request):
-	return render(request, 'login.html', {})
+    if request.user.is_authenticated():
+        return redirect('/lessons/')
+    else:
+        return render(request, 'login.html', {})
