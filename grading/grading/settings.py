@@ -51,6 +51,8 @@ INSTALLED_APPS = (
     'allauth.socialaccount.providers.google',
     'django_extensions',
     'south',
+    'lessons',
+    'usermanage',
 )
 
 MIDDLEWARE_CLASSES = (

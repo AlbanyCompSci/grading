@@ -1,4 +1,5 @@
 {% load staticfiles %}
+{% load lessons_overview_tags %}
 <!doctype html>
 <html lang="en">
 <head>
@@ -47,28 +48,25 @@
             <h2></h2>
         </div>
 
+        {% for class in classes %}
         <div class="content">
-            <h2 class="content-subhead">AP Computer Science (Period 6)</h2>
-            
+            <h2 class="content-subhead">{{ class.name }}</h2>
+
             <table class="pure-table">
                 <tr>
                     <th>Name</th>
                     <th>Completed</th>
                 </tr>
                 <tr>
-                    <td><a href="/lesson/1/" class="pure-button">Recursion</td>
-                    <td>0/10</td>
-                </tr>
-                <tr>
-                    <td><a href="/lesson/1/" class="pure-button">GridWorld</td>
-                    <td>10/10</td>
-                </tr>
-                <tr>
-                    <td><a href="/lesson/1/" class="pure-button">Image Manipulation</td>
-                    <td>10/10</td>
+                {% for lesson in class.lesson_set.select_related %}
+                    <td><a href="{{ lesson.get_absolute_url }}" class="pure-button">{{ lesson.name }}</a></td>
+                    <td>{{ lesson.questions.all|answered_count:user }}/{{ lesson.questions.all|length }}</td>
+                {% endfor %}
                 </tr>
             </table>
         </div>
+        {% endfor %}
+
     </div>
 </div>
 
