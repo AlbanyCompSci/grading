@@ -68,7 +68,7 @@
     <div id="main">
         <div class="header">
             <h1>{{ lesson.name }}</h1>
-            <h2></h2>
+            <h2>{% if user.is_staff %}Logged in as a teacher{% endif %}</h2>
         </div>
 
         {% for q in lesson.questions.all %}
@@ -84,10 +84,6 @@
         {% endfor %}
     </div>
 </div>
-
-
-
-
 
 <script>
 (function (window, document) {
@@ -154,6 +150,7 @@
         var editor = ace.edit(ids[i])
         editor.setTheme('ace/theme/clouds_midnight')
         editor.getSession().setMode('ace/mode/java')
+        editors.push(editor)
     }
 </script>
 

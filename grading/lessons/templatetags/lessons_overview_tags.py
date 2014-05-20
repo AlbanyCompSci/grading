@@ -3,6 +3,7 @@ from lessons.models import Response
 
 register = template.Library()
 
+
 @register.filter
 def answered_count(questions, user):
     count = 0
