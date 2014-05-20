@@ -8,4 +8,4 @@ class SchoolClass(models.Model):
     students = models.ManyToManyField(User, related_name='students')
 
     def __unicode__(self):
-        return u'<Response: %r>' % (self.name)
+        return u'<SchoolClass: %r>' % (self.name)
