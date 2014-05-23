@@ -39,6 +39,10 @@
         padding-left: .5em !important;
         padding-top: .5em !important;
     }
+
+    .less-margin {
+        margin-bottom: 0;
+    }
   </style>
 
 </head>
@@ -56,11 +60,13 @@
             <a href="/">Grading</a>
 
             <ul>
+                {% if not user.is_staff %}
                 <li class="autosave-success"><a href="#">Saved &check;</a></li>
                 <li class="pure-menu-heading">Questions:</li>
                 {% for q in lesson.questions.all %}
                 <li><a href="#{{ q.title|slugify }}">{{ q.title }}</a></li>
                 {% endfor %}
+                {% endif %}
             </ul>
         </div>
     </div>
@@ -72,13 +78,21 @@
         </div>
 
         {% for q in lesson.questions.all %}
+        {% if user.is_staff %}
+        <div class="content less-margin" id="{{ q.title|slugify }}"><br>
+        {% else %}
         <div class="content" id="{{ q.title|slugify }}">
+        {% endif %}
+            {% if user.is_staff %}
+            <a href="/question/{{ lesson.id }}-{{ q.id }}/" class="pure-button pure-button-primary">{{ q.title }}</a> <small>{{ q.response_set.all|only_responses_in_class:lesson|length }}/{{ school_class.students.all|length }} students answered</small>
+            {% else %}
             <h2 class="content-subhead">{{ q.title }}</h2>
             <div id="{{ q.title|slugify }}-editor" class="editor">{{ q|response_to_q:user }}</div>            
 
             {% if q|response_comment:user %}
                 <p><b>Teacher comments:</b></p>
                 <p>{{ q|response_comment:user }}</p>
+            {% endif %}
             {% endif %}
         </div>
         {% endfor %}

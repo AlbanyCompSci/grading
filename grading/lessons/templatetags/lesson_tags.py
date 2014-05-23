@@ -3,6 +3,7 @@ from lessons.models import Response
 
 register = template.Library()
 
+
 @register.filter
 def response_to_q(question, user):
     try:
@@ -10,9 +11,15 @@ def response_to_q(question, user):
     except Response.DoesNotExist:
         return ''
 
+
 @register.filter
 def response_comment(question, user):
     try:
         return question.response_set.get(answerer=user).comment
     except Response.DoesNotExist:
         return None
+
+
+@register.filter
+def only_responses_in_class(responses, lesson):
+    return [r for r in responses if r.lesson == lesson]

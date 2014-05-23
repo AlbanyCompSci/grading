@@ -27,10 +27,17 @@ class Question(models.Model):
 
 
 class Response(models.Model):
+    # TODO: some of these columns are null for bad reasons
+    # (i.e. I don't want to throw away existing migration
+    # scripts)
     text = models.TextField(blank=True, null=True)
-    answerer = models.ManyToManyField(User)
+    answerer = models.ForeignKey(User, null=True)
     question = models.ForeignKey('lessons.Question', null=True)
     comment = models.TextField(blank=True, null=True)
+    seen = models.BooleanField(default=False)
+
+    # needed to connect a response to a class
+    lesson = models.ForeignKey('lessons.Lesson', null=True)
 
     def __unicode__(self):
         return u'<Response: %r>' % (self.question.title)

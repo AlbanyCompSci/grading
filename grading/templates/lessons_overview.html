@@ -80,7 +80,11 @@
                 </tr>
                 <tr>
                 {% for lesson in class.lesson_set.select_related %}
+                    {% if user.is_staff %}
+                    <td><a href="{{ lesson.get_absolute_url }}?grade_class={{ class.id }}" class="pure-button">{{ lesson.name }}</a></td>
+                    {% else %}
                     <td><a href="{{ lesson.get_absolute_url }}" class="pure-button">{{ lesson.name }}</a></td>
+                    {% endif %}                    
                     {% if user.is_staff %}
                     <td><a href="{{ lesson.get_edit_url }}" class="pure-button">Edit</a></td>
                     {% else %}
