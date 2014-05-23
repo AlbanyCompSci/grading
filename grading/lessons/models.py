@@ -15,6 +15,9 @@ class Lesson(models.Model):
     def get_absolute_url(self):
         return '/lesson/%i/' % (self.id)
 
+    def get_edit_url(self):
+        return '/lesson/edit-%i/' % (self.id)
+
 
 class Question(models.Model):
     title = models.CharField(max_length=255)

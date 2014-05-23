@@ -14,6 +14,7 @@ urlpatterns = patterns('',
     url(r'^$', 'usermanage.views.login'),
     url(r'^lessons/', 'lessons.views.lessons_overview'),
     url(r'^lesson/(?P<id>[0-9]+)/$', 'lessons.views.lesson'),
+    url(r'^lesson/edit-(?P<id>[0-9]+)/$', 'lessons.views.edit_lesson'),
 
     url(r'^join/(?P<id>[0-9]+)/$', 'usermanage.views.join_class'),
 )
