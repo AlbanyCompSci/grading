@@ -5,9 +5,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="A layout example with a side menu that hides on mobile, just like the Pure website.">
 
-  <title>Lessons</title>
+  <title>{{ lesson.name }}</title>
 
   <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.4.2/pure.css">
 
@@ -20,6 +19,7 @@
   
   <style>
 
+
     #menu .autosave-success {
         background: #1CB841;
     }
@@ -27,6 +27,23 @@
     #menu .autosave-success a {
         color: #fff;
     }
+
+    #menu .autosave-saving {
+        background: #df7514;
+    }
+
+    #menu .autosave-saving a {
+        color: #fff;
+    }
+
+    #menu .autosave-fail {
+        background: #ca3c3c;
+    }
+
+    #menu .autosave-fail a {
+        color: #fff;
+    }
+
 
     .editor {
         width: 100%;
@@ -61,7 +78,7 @@
 
             <ul>
                 {% if not user.is_staff %}
-                <li class="autosave-success"><a href="#">Saved &check;</a></li>
+                <li class="autosave-success" id="save"><a href="#">Saved &check;</a></li>
                 <li class="pure-menu-heading">Questions:</li>
                 {% for q in lesson.questions.all %}
                 <li><a href="#{{ q.title|slugify }}">{{ q.title }}</a></li>
@@ -84,10 +101,20 @@
         <div class="content" id="{{ q.title|slugify }}">
         {% endif %}
             {% if user.is_staff %}
-            <a href="/question/{{ lesson.id }}-{{ q.id }}/" class="pure-button pure-button-primary">{{ q.title }}</a> <small>{{ q.response_set.all|only_responses_in_class:lesson|length }}/{{ school_class.students.all|length }} students answered</small>
+                <a href="/question/{{ lesson.id }}-{{ q.id }}/" class="pure-button pure-button-primary">
+                    {{ q.title }}
+                </a> 
+                <small>
+                    {{ q.response_set.all|only_responses_in_class:lesson|length }}/{{ school_class.students.all|length }} students answered
+                </small>
             {% else %}
-            <h2 class="content-subhead">{{ q.title }}</h2>
-            <div id="{{ q.title|slugify }}-editor" class="editor">{{ q|response_to_q:user }}</div>            
+            <h2 class="content-subhead">
+                {{ q.title }} 
+                {% if q|response_is_seen:user %}
+                    <small>(Seen by a teacher)</small>
+                {% endif %}
+            </h2>
+            <div id="{{ q.title|slugify }}-editor" class="editor">{{ q|response_text:user }}</div>            
 
             {% if q|response_comment:user %}
                 <p><b>Teacher comments:</b></p>
@@ -139,13 +166,82 @@
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 <script>
-    $(document).ready(
-        $('.autosave-success a').hover(function() {
-            $(this).text('Save')
-        }, function() {
-            $(this).text('Saved ✓')
-        })
-    )
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie != '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = jQuery.trim(cookies[i]);
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    var csrftoken = getCookie('csrftoken');
+
+    function csrfSafeMethod(method) {
+        // these HTTP methods do not require CSRF protection
+        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+    }
+    function sameOrigin(url) {
+        // test that a given url is a same-origin URL
+        // url could be relative or scheme relative or absolute
+        var host = document.location.host; // host + port
+        var protocol = document.location.protocol;
+        var sr_origin = '//' + host;
+        var origin = protocol + sr_origin;
+        // Allow absolute or scheme relative URLs to same origin
+        return (url == origin || url.slice(0, origin.length + 1) == origin + '/') ||
+            (url == sr_origin || url.slice(0, sr_origin.length + 1) == sr_origin + '/') ||
+            // or any other URL that isn't scheme relative or absolute i.e relative.
+            !(/^(\/\/|http:|https:).*/.test(url));
+    }
+    $.ajaxSetup({
+        beforeSend: function(xhr, settings) {
+            if (!csrfSafeMethod(settings.type) && sameOrigin(settings.url)) {
+                // Send the token to same-origin, relative URLs only.
+                // Send the token only if the method warrants CSRF protection
+                // Using the CSRFToken value acquired earlier
+                xhr.setRequestHeader("X-CSRFToken", csrftoken);
+            }
+        }
+    });
+</script>
+
+<script>
+    $(document).ready(function () {
+        window.saveResponses = function() {
+            responses = {}
+            $(editors).each(function(i, editor) {
+                responses[response_ids[i]] = editor.getSession().getValue()
+            })
+            responses['lesson'] = {{ lesson.id }}
+
+            $('#save').toggleClass('autosave-success autosave-saving')
+            $('#save a').html('<img src="{% static "orange-spinner.gif" %}"> Loading')
+
+            var r = $.post('/save-responses/', responses)
+            
+            r.done(function() {
+                $('#save').removeClass('autosave-saving autosave-fail')
+                $('#save').addClass('autosave-success commented')
+                $('#save a').text('Saved ✓')
+            })
+
+            r.fail(function() {
+                $('#save').removeClass('autosave-saving autosave-success')
+                $('#save').addClass('autosave-fail')
+                $('#save a').text('Error Saving')
+            })
+        }
+    
+        setInterval(saveResponses, 5000)
+    })
+
 
 </script>
 
@@ -166,6 +262,11 @@
         editor.getSession().setMode('ace/mode/java')
         editors.push(editor)
     }
+
+    var response_ids = [];
+    {% for q in lesson.questions.all %}
+        response_ids.push('{% if q|response_id:user %}{{ q|response_id:user }}{% else %}new-{{ q.id }}{% endif %}')
+    {% endfor %}
 </script>
 
 

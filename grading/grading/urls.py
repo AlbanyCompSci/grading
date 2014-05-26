@@ -21,4 +21,5 @@ urlpatterns = patterns('',
 
     url(r'^mark-seen/$', 'lessons.views.mark_response_seen'),
     url(r'^save-comment/$', 'lessons.views.save_comment'),
+    url(r'^save-responses/$', 'lessons.views.save_responses'),
 )

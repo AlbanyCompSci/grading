@@ -5,7 +5,7 @@ register = template.Library()
 
 
 @register.filter
-def response_to_q(question, user):
+def response_text(question, user):
     try:
         return question.response_set.get(answerer=user).text
     except Response.DoesNotExist:
@@ -16,6 +16,22 @@ def response_to_q(question, user):
 def response_comment(question, user):
     try:
         return question.response_set.get(answerer=user).comment
+    except Response.DoesNotExist:
+        return None
+
+
+@register.filter
+def response_is_seen(question, user):
+    try:
+        return question.response_set.get(answerer=user).seen
+    except Response.DoesNotExist:
+        return False
+
+
+@register.filter
+def response_id(question, user):
+    try:
+        return question.response_set.get(answerer=user).id
     except Response.DoesNotExist:
         return None
 

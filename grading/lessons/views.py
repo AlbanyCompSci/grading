@@ -106,3 +106,24 @@ def save_comment(request):
         response.comment = request.POST[id]
         response.save()
     return HttpResponse(status=200)
+
+
+@login_required
+def save_responses(request):
+    responses = request.POST.items()
+    # first element of list is the lesson id:
+    lesson = Lesson.objects.get(id=responses.pop(0)[1])
+    for id in responses:
+        try:
+            response = Response.objects.get(id=id[0], answerer=request.user)
+            response.text = request.POST[id[0]]
+            response.save()
+        except ValueError:
+            response = Response(
+                text=request.POST[id[0]],
+                answerer=request.user,
+                question=Question.objects.get(id=id[0][4:]),
+                lesson=lesson
+            )
+            response.save()
+    return HttpResponse(status=200)
