@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
@@ -32,6 +32,27 @@ def lesson(request, id):
         school_class = None
     return render(request, 'lesson.html', {
         'lesson': lesson,
+        'school_class': school_class,
+    })
+
+
+@staff_member_required
+def new_lesson(request, id):
+    school_class = SchoolClass.objects.get(id=id)
+
+    if request.method == 'POST':
+        lesson = Lesson(
+            name=request.POST['lesson_name'],
+            school_class=school_class,
+        )
+        for title in request.POST.getlist('questions[]'):
+            question = Question(title=title)
+            question.save()
+            lesson.questions.add(question)
+        lesson.save()
+        return redirect('/')
+
+    return render(request, 'new_lesson.html', {
         'school_class': school_class,
     })
 

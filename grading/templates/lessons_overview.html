@@ -78,20 +78,36 @@
                     <th>Completed</th>
                     {% endif %}
                 </tr>
-                <tr>
                 {% for lesson in class.lesson_set.select_related %}
+                <tr>
                     {% if user.is_staff %}
-                    <td><a href="{{ lesson.get_absolute_url }}?grade_class={{ class.id }}" class="pure-button">{{ lesson.name }}</a></td>
+                        <td>
+                            <a href="{{ lesson.get_absolute_url }}?grade_class={{ class.id }}" class="pure-button">{{ lesson.name }}</a>
+                        </td>
                     {% else %}
-                    <td><a href="{{ lesson.get_absolute_url }}" class="pure-button">{{ lesson.name }}</a></td>
-                    {% endif %}                    
-                    {% if user.is_staff %}
-                    <td><a href="{{ lesson.get_edit_url }}" class="pure-button">Edit</a></td>
-                    {% else %}
-                    <td>{{ lesson.questions.all|answered_count:user }}/{{ lesson.questions.all|length }}</td>
+                        <td>
+                            <a href="{{ lesson.get_absolute_url }}" class="pure-button">{{ lesson.name }}</a>
+                        </td>
                     {% endif %}
-                {% endfor %}
+
+                    {% if user.is_staff %}
+                        <td>
+                            <a href="{{ lesson.get_edit_url }}" class="pure-button">Edit</a>
+                        </td>
+                    {% else %}
+                        <td>{{ lesson.questions.all|answered_count:user }}/{{ lesson.questions.all|length }}
+                        </td>
+                    {% endif %}
                 </tr>
+                {% endfor %}
+                {% if user.is_staff %}
+                    <tr>
+                        <td>
+                            <a href="{{ class.get_new_lesson_url }}" class="pure-button pure-button-primary">+ New Lesson</a>
+                        </td>
+                        <td></td>
+                    </tr>
+                {% endif %}
             </table>
         </div>
         {% endfor %}

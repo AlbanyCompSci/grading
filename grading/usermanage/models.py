@@ -14,3 +14,6 @@ class SchoolClass(models.Model):
 
     def get_join_url(self):
         return 'http://%s/join/%s/' % (get_current_site(None), self.id)
+
+    def get_new_lesson_url(self):
+        return '/lesson/new/%i/' % (self.id)
