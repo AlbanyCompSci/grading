@@ -14,7 +14,10 @@ def lessons_overview(request):
             school_class.password = request.POST['class_pwd']
             school_class.save()
 
-    classes = request.user.students.select_related()
+    if request.user.is_staff:
+        classes = request.user.teachers.select_related()
+    else:
+        classes = request.user.students.select_related()
     return render(request, 'lessons_overview.html', {
         'classes': classes,
     })
