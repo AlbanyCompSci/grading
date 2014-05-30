@@ -48,12 +48,14 @@
         </div>
 
         <div class="content">
+            {% if user.is_staff %}
             <h2 class="content-subhead">
                 Class Management
             </h2>
             <p>
                 <a href="/class/new/" class="pure-button pure-button-primary">+ New Class</a>
             </p>
+            {% endif %}
             {% for class in classes %}
             <h2 class="content-subhead">
                 {{ class.name }}
