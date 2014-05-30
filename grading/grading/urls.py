@@ -18,6 +18,7 @@ urlpatterns = patterns('',
     url(r'^lesson/edit-(?P<id>[0-9]+)/$', 'lessons.views.edit_lesson'),
     url(r'^question/(?P<class_id>[0-9]+)-(?P<id>[0-9]+)/$', 'lessons.views.grade_question'),
 
+    url(r'^class/new/$', 'usermanage.views.new_class'),
     url(r'^join/(?P<id>[0-9]+)/$', 'usermanage.views.join_class'),
 
     url(r'^mark-seen/$', 'lessons.views.mark_response_seen'),
