@@ -70,7 +70,7 @@
             <a href="/">Grading</a>
 
             <ul>
-                <li class="autosave-success" id="save"><a href="#">Saved &check;</a></li>
+                <li id="save"><a href="#" onclick="saveQuestions();return false;">Save</a></li>
             </ul>
         </div>
     </div>
@@ -91,6 +91,8 @@
         </div>
     </div>
 </div>
+
+<div style="position:absolute;bottom:1em;right:1em;" id="save-status"></div>
 
 <script>
 (function (window, document) {
@@ -208,14 +210,40 @@
             })
         })
 
+        // monitor for changes:
+        // http://dustinmartin.net/monitoring-a-form-for-changes-with-jquery/
+        var cleanSaveState = function() {
+            $(':input').each(function() { 
+                $(this).data('initialValue', $(this).val()); 
+            });
+        }
+        
+        cleanSaveState();
+
+        window.onbeforeunload = function(){ 
+            var msg = 'You haven\'t saved your changes.'; 
+            var isDirty = false; 
+         
+            $(':input').each(function () { 
+                if($(this).data('initialValue') != $(this).val()){ 
+                    isDirty = true; 
+                } 
+            }); 
+         
+            if(isDirty == true){ 
+                return msg; 
+            } 
+        };
+
         window.saveQuestions = function() {
             var questions = [];
             $('.question').each(function() {
                 questions.push($(this).val())
             })
 
-            $('#save').toggleClass('autosave-success autosave-saving')
-            $('#save a').html('<img src="{% static "orange-spinner.gif" %}"> Loading')
+            $('#save-status').css('color', '#777')
+            $('#save-status').show()
+            $('#save-status').text('Saving...')
 
             var r = $.ajax({
                 url: '.',
@@ -227,19 +255,17 @@
             })
 
             r.done(function() {
-                $('#save').removeClass('autosave-saving autosave-fail')
-                $('#save').addClass('autosave-success')
-                $('#save a').text('Saved ✓')
+                $('#save-status').text('Saved!')
+                $('#save-status').fadeOut().delay(2000)
+                cleanSaveState();
             })
 
             r.fail(function() {
-                $('#save').removeClass('autosave-saving autosave-success')
-                $('#save').addClass('autosave-fail')
-                $('#save a').text('Error Saving')
+                $('#save-status').text('Error Saving')
+                $('#save-status').css('color', 'red')
+                $('#save-status').fadeOut()
             })
         }
-
-        setInterval(saveQuestions, 5000)
     })
 
 </script>
