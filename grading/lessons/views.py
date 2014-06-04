@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
 from lessons.models import Lesson, Question, Response
 from usermanage.models import SchoolClass
+import json
 
 
 @login_required
@@ -135,19 +136,25 @@ def save_comment(request):
 @login_required
 def save_responses(request):
     responses = request.POST.items()
-    # first element of list is the lesson id:
-    lesson = Lesson.objects.get(id=responses.pop(0)[1])
+    lesson = Lesson.objects.get(id=request.POST['lesson'])
+    responses.pop(responses.index(('lesson',request.POST['lesson'])))
+    new_response_ids = {}
+
     for id in responses:
         try:
             response = Response.objects.get(id=id[0], answerer=request.user)
             response.text = request.POST[id[0]]
             response.save()
         except ValueError:
-            response = Response(
-                text=request.POST[id[0]],
-                answerer=request.user,
-                question=Question.objects.get(id=id[0][4:]),
-                lesson=lesson
-            )
-            response.save()
-    return HttpResponse(status=200)
+            if len(request.POST[id[0]]) > 0:
+                response = Response(
+                    text=request.POST[id[0]],
+                    answerer=request.user,
+                    question=Question.objects.get(id=id[0][4:]),
+                    lesson=lesson
+                )
+                response.save()
+                new_response_ids[id[0]] = str(response.id)
+
+    return HttpResponse(json.dumps(new_response_ids),
+                        content_type='application/json')

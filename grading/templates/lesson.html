@@ -226,10 +226,17 @@
 
             var r = $.post('/save-responses/', responses)
             
-            r.done(function() {
+            r.done(function(newResponseIds) {
                 $('#save').removeClass('autosave-saving autosave-fail')
                 $('#save').addClass('autosave-success commented')
                 $('#save a').text('Saved ✓')
+                
+                for (var i = 0; i < response_ids.length; i++) {
+                    // check if string starts with 'new'
+                    if (response_ids[i].lastIndexOf('new', 0) === 0) {
+                        response_ids[i] = newResponseIds[response_ids[i]]
+                    }
+                }
             })
 
             r.fail(function() {
@@ -265,7 +272,7 @@
 
     var response_ids = [];
     {% for q in lesson.questions.all %}
-        response_ids.push('{% if q|response_id:user %}{{ q|response_id:user }}{% else %}new-{{ q.id }}{% endif %}')
+        response_ids.push('{% if q|response_id:user %}{{ q|response_id:user }}{% else %}new-{{ q.id }}{% endif %}');
     {% endfor %}
 </script>
 
