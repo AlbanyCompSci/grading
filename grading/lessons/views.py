@@ -137,7 +137,7 @@ def save_comment(request):
 def save_responses(request):
     responses = request.POST.items()
     lesson = Lesson.objects.get(id=request.POST['lesson'])
-    responses.pop(responses.index(('lesson',request.POST['lesson'])))
+    responses.pop(responses.index(('lesson', request.POST['lesson'])))
     new_response_ids = {}
 
     for id in responses:
