@@ -10,7 +10,7 @@ class SchoolClass(models.Model):
     password = models.CharField(max_length=255, null=True, blank=True)
 
     def __unicode__(self):
-        return u'<SchoolClass: %r>' % (self.name)
+        return u'%r' % (self.name)
 
     def get_join_url(self):
         return 'http://%s/join/%s/' % (get_current_site(None), self.id)
